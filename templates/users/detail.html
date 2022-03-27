@@ -1,6 +1,12 @@
 {% extends 'base.html' %} {% block content %}
 
-<div id="warbler-hero" class="full-width"></div>
+<div id="warbler-hero" class="full-width">
+	<img
+		src="{{ user.header_image_url }}"
+		alt="Header Image for {{ user.username }}"
+		id="header-image"
+	/>
+</div>
 <img
 	src="{{ user.image_url }}"
 	alt="Image for {{ user.username }}"
