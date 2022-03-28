@@ -1,4 +1,5 @@
 import os
+import pdb
 
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
@@ -321,14 +322,16 @@ def homepage():
     """
 
     if g.user:
+        followers_ids = [follower.id for follower in g.user.following]
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_(followers_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
 
         return render_template('home.html', messages=messages)
-
+        
     else:
         return render_template('home-anon.html')
 
