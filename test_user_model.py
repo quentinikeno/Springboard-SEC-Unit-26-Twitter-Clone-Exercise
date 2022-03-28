@@ -46,11 +46,18 @@ class UserModelTestCase(TestCase):
             username="Jane Doe",
             password="GreatPassword123"
         )
+        
+        user_2 = User(
+            email="test2@email.com",
+            username="John Smit",
+            password="GreatPassword1234"
+        )
 
-        db.session.add(user)
+        db.session.add_all([user, user_2])
         db.session.commit()
         
         self.user = user
+        self.user_2 = user_2
 
     def test_user_model(self):
         """Does basic model work?"""
@@ -71,3 +78,8 @@ class UserModelTestCase(TestCase):
     def test_repr(self):
         """Test the string representation of the User instance."""  
         self.assertEqual(f"{self.user}", f"<User #{self.user.id}: {self.user.username}, {self.user.email}>")
+        
+    def test_is_following(self):
+        """Test if is_following successfully detects when user1 is following user2."""
+        self.user.following.append(self.user_2)
+        self.assertEqual(self.user.is_following(self.user_2), True)
