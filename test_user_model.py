@@ -43,19 +43,20 @@ class UserModelTestCase(TestCase):
 
         self.client = app.test_client()
         
-        user = User(
-            email="test@email.com",
-            username="JaneDoe",
-            password="GreatPassword123"
+        user = User.signup(
+            "JaneDoe",
+            "test@email.com",            
+            "GreatPassword123",
+            None
         )
         
-        user_2 = User(
-            email="test2@email.com",
-            username="JohnSmith",
-            password="GreatPassword1234"
+        user_2 = User.signup(
+            "JohnSmith",
+            "test2@email.com",            
+            "GreatPassword1234",
+            None
         )
-
-        db.session.add_all([user, user_2])
+        
         db.session.commit()
         
         self.user = user
@@ -121,3 +122,8 @@ class UserModelTestCase(TestCase):
         
         with self.assertRaises(TypeError):
             User.signup()
+            
+    def test_user_authenticate(self):
+        """Test if User.authenticate successfully returns a user when given a valid username and password."""
+        auth_user = User.authenticate("JaneDoe", "GreatPassword123")
+        self.assertEqual(auth_user, self.user)
