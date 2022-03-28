@@ -10,6 +10,8 @@ from unittest import TestCase
 
 from models import db, User, Message, Follows
 
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
+
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
 # before we import our app, since that will have already
@@ -43,13 +45,13 @@ class UserModelTestCase(TestCase):
         
         user = User(
             email="test@email.com",
-            username="Jane Doe",
+            username="JaneDoe",
             password="GreatPassword123"
         )
         
         user_2 = User(
             email="test2@email.com",
-            username="John Smit",
+            username="JohnSmith",
             password="GreatPassword1234"
         )
 
@@ -58,6 +60,10 @@ class UserModelTestCase(TestCase):
         
         self.user = user
         self.user_2 = user_2
+        
+    def tearDown(self):
+        """Rollback any failed transactions."""
+        db.session.rollback()
 
     def test_user_model(self):
         """Does basic model work?"""
@@ -98,6 +104,20 @@ class UserModelTestCase(TestCase):
         self.assertFalse(self.user.is_followed_by(self.user_2))
         
     def test_user_signup(self):
-        """Test if User.signup successfully creats a new user given valid credentials."""
+        """Test if User.signup successfully creates a new user given valid credentials."""
         new_u = User.signup("newUser", "user@email.com", "Unhackable", "testurl.com")
-        self.assertEqual(f"{new_u}", f"<User #{new_u.id}: {new_u.username}, {new_u.email}>")
+        db.session.commit()
+        self.assertIsInstance(new_u, User)
+        
+    def test_user_signup_non_unique_username(self):
+        """Test if User.signup fails to create a new user given non-unique username."""
+        User.signup("JaneDoe", "user@email.com", "Unhackable", "testurl.com")
+        
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+            
+    def test_user_signup_nullable_fields(self):
+        """Test if User.signup fails to create a new user given non-nullable fields not provided."""
+        
+        with self.assertRaises(TypeError):
+            User.signup()
