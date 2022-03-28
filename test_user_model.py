@@ -83,3 +83,7 @@ class UserModelTestCase(TestCase):
         """Test if is_following successfully detects when user1 is following user2."""
         self.user.following.append(self.user_2)
         self.assertEqual(self.user.is_following(self.user_2), True)
+        
+    def test_is_not_following(self):
+        """Test if is_following successfully detects when user1 not is following user2."""
+        self.assertEqual(self.user.is_following(self.user_2), False)
