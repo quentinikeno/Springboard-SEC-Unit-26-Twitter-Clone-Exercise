@@ -40,6 +40,17 @@ class UserModelTestCase(TestCase):
         Follows.query.delete()
 
         self.client = app.test_client()
+        
+        user = User(
+            email="test@email.com",
+            username="Jane Doe",
+            password="GreatPassword123"
+        )
+
+        db.session.add(user)
+        db.session.commit()
+        
+        self.user = user
 
     def test_user_model(self):
         """Does basic model work?"""
@@ -56,3 +67,7 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
+        
+    def test_repr(self):
+        """Test the string representation of the User instance."""  
+        self.assertEqual(f"{self.user}", f"<User #{self.user.id}: {self.user.username}, {self.user.email}>")
