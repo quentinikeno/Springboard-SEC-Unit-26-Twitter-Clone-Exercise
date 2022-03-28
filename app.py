@@ -345,8 +345,9 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
+        likes_ids = [message.id for message in g.user.likes if message in messages]
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, likes=likes_ids)
         
     else:
         return render_template('home-anon.html')
