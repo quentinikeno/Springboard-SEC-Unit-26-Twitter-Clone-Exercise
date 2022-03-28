@@ -276,6 +276,24 @@ def like_msg(msg_id):
     
     return redirect("/")
 
+@app.route('/users/remove_like/<int:msg_id>', methods=["POST"])
+def unlike_msg(msg_id):
+    """Remove like from a message."""
+    
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    try:
+        like = Likes.query.filter( (Likes.user_id == g.user.id) & (Likes.message_id == msg_id) ).first()
+        db.session.delete(like)
+        db.session.commit()
+    except IntegrityError:
+        flash("You cannot unlike a message that hasn't been already liked.", 'danger')
+    
+    return redirect("/")
+
+
 ##############################################################################
 # Messages routes:
 
