@@ -16,7 +16,7 @@ from models import db, connect_db, Message, User
 # connected to the database
 
 os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
-
+app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 
 # Now we can import app
 
