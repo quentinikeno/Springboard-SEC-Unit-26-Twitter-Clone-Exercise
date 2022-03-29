@@ -71,6 +71,18 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+    
+    def test_add_message_when_logged_out(self):
+        """Can use add a message?"""
+        with self.client as c:
+            
+            resp = c.post("/messages/new", data={"text": "Hello"})
+
+            self.assertEqual(resp.status_code, 302)
+                
+            empty_msg_list = Message.query.all()
+            
+            self.assertEqual(empty_msg_list, [])     
 
     def test_delete_message(self):
         """Can use delete a message?"""
