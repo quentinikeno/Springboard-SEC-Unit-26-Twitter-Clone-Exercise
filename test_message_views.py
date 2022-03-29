@@ -16,7 +16,6 @@ from models import db, connect_db, Message, User
 # connected to the database
 
 os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
-app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 
 # Now we can import app
 
@@ -31,6 +30,7 @@ db.create_all()
 # Don't have WTForms use CSRF at all, since it's a pain to test
 
 app.config['WTF_CSRF_ENABLED'] = False
+app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 
 
 class MessageViewTestCase(TestCase):
@@ -71,3 +71,22 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+    def test_delete_message(self):
+        """Can use delete a message?"""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            c.post("/messages/new", data={"text": "Hello"})
+            
+            msg = Message.query.one()
+            
+            resp = c.post(f"/messages/{msg.id}/delete")
+            
+            self.assertEqual(resp.status_code, 302)
+            
+            empty_msg_list = Message.query.all()
+            
+            self.assertEqual(empty_msg_list, [])
