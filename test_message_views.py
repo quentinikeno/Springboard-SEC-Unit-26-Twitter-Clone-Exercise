@@ -18,7 +18,7 @@ from models import db, connect_db, Message, User
 os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
 
 # Now we can import app
-
+from flask import session
 from app import app, CURR_USER_KEY
 
 # Create our tables (we do this here, so we only create the tables
@@ -73,7 +73,7 @@ class MessageViewTestCase(TestCase):
             self.assertEqual(msg.text, "Hello")
     
     def test_add_message_when_logged_out(self):
-        """Can use add a message?"""
+        """Can use add a message when logged out?"""
         with self.client as c:
             
             resp = c.post("/messages/new", data={"text": "Hello"})
@@ -84,8 +84,8 @@ class MessageViewTestCase(TestCase):
             
             self.assertEqual(empty_msg_list, [])     
 
-    def test_delete_message(self):
-        """Can use delete a message?"""
+    def test_delete_message_logged_in(self):
+        """Can use delete a message when logged in?"""
 
         with self.client as c:
             with c.session_transaction() as sess:
@@ -102,3 +102,27 @@ class MessageViewTestCase(TestCase):
             empty_msg_list = Message.query.all()
             
             self.assertEqual(empty_msg_list, [])
+            
+    def test_delete_message_logged_out(self):
+        """Can use delete a message when logged out?"""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            c.post("/messages/new", data={"text": "Hello"})
+            
+            msg = Message.query.one()
+            
+            #log out the user and pop their id from session
+            with c.session_transaction() as sess:
+                del sess[CURR_USER_KEY]
+                self.assertTrue(sess.modified)
+            
+            resp = c.post(f"/messages/{msg.id}/delete")
+            
+            self.assertEqual(resp.status_code, 302)
+            
+            msg = Message.query.first()
+            
+            self.assertEqual(msg.text, "Hello")
