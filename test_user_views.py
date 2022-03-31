@@ -77,9 +77,17 @@ class UserViewTestCase(TestCase):
                 sess[CURR_USER_KEY] = self.test_user.id
         
             resp = c.get(f"/users/{self.test_user_id_2}/following")
+            
+            self.assertEqual(resp.status_code, 200)
+            
+    def test_view_following_not_logged_in(self):
+        """When you’re not logged in, can you see the following pages for any user?"""
+        with self.client as c:            
+            resp = c.get(f"/users/{self.test_user_id_2}/following", follow_redirects=True)
             html = resp.get_data(as_text=True)
             
             self.assertEqual(resp.status_code, 200)
+            self.assertIn("<h1>What's Happening?</h1>", html)
             
     def test_view_follower(self):
         """When you’re logged in, can you see the follower pages for any user?"""
@@ -88,6 +96,14 @@ class UserViewTestCase(TestCase):
                 sess[CURR_USER_KEY] = self.test_user.id
         
             resp = c.get(f"/users/{self.test_user_id_2}/followers")
+            
+            self.assertEqual(resp.status_code, 200)
+            
+    def test_view_follower_not_logged_in(self):
+        """When you’re not logged in, can you see the follower pages for any user?"""
+        with self.client as c:            
+            resp = c.get(f"/users/{self.test_user_id_2}/followers", follow_redirects=True)
             html = resp.get_data(as_text=True)
             
             self.assertEqual(resp.status_code, 200)
+            self.assertIn("<h1>What's Happening?</h1>", html)
