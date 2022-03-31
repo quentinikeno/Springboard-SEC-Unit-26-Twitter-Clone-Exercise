@@ -128,3 +128,23 @@ class UserViewTestCase(TestCase):
             
             self.assertEqual(resp.status_code, 200)
             self.assertIn('<ul class="list-group" id="messages">', html)
+            
+    def test_user_edit(self):
+        """Can you edit a user's profile."""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.test_user.id
+                
+            data = {
+            "username": "edited_user",
+            "email": "newemail@test.com",
+            "image_url": None,
+            "header_image_url": "https://testurl.com",
+            "bio": "Blah blah blah",
+            "password": "testuser"
+            }
+            resp = c.post(f"/users/profile", data=data, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+            
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('<h4 id="sidebar-username">@edited_user</h4>', html)
