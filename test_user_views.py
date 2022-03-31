@@ -116,3 +116,15 @@ class UserViewTestCase(TestCase):
             
             self.assertEqual(resp.status_code, 200)
             self.assertIn(f'<h4 id="sidebar-username">@{self.test_user.username}</h4>', html)
+            
+    def test_user_likes(self):
+        """Can you see a user's likes?"""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.test_user.id
+                
+            resp = c.get(f"/users/{self.test_user_id}/likes")
+            html = resp.get_data(as_text=True)
+            
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('<ul class="list-group" id="messages">', html)
