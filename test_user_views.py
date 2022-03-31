@@ -130,7 +130,7 @@ class UserViewTestCase(TestCase):
             self.assertIn('<ul class="list-group" id="messages">', html)
             
     def test_user_edit(self):
-        """Can you edit a user's profile."""
+        """Can you edit a user's profile?"""
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.test_user.id
@@ -148,3 +148,42 @@ class UserViewTestCase(TestCase):
             
             self.assertEqual(resp.status_code, 200)
             self.assertIn('<h4 id="sidebar-username">@edited_user</h4>', html)
+            
+    def test_user_edit_wrong_password(self):
+        """Can you edit a user's profile with a wrong password?"""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.test_user.id
+                
+            data = {
+            "username": "edited_user",
+            "email": "newemail@test.com",
+            "image_url": None,
+            "header_image_url": "https://testurl.com",
+            "bio": "Blah blah blah",
+            "password": "wrongPassword"
+            }
+            resp = c.post(f"/users/profile", data=data, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+            
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Invalid credentials.', html)
+            self.assertIn('<h2 class="join-message">Edit Your Profile.</h2>', html)
+            
+    def test_user_edit_unauthorized(self):
+        """Can you edit a user's profile when not logged in?"""
+        with self.client as c:
+            data = {
+            "username": "edited_user",
+            "email": "newemail@test.com",
+            "image_url": None,
+            "header_image_url": "https://testurl.com",
+            "bio": "Blah blah blah",
+            "password": "wrongPassword"
+            }
+            resp = c.post(f"/users/profile", data=data, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+            
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Access unauthorized.', html)
+            self.assertIn("<h1>What's Happening?</h1>", html)
