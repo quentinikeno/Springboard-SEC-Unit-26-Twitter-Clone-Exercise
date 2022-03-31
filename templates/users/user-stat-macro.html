@@ -1,0 +1,11 @@
+{% macro stat_li(category, route) %}
+<li class="stat">
+	<p class="small">{{ category | capitalize }}</p>
+	<h4>
+		<a href="/users/{{ user.id }}{{ route }}"
+			>{{ user[category] | length }}</a
+		>
+	</h4>
+</li>
+
+{% endmacro %}
