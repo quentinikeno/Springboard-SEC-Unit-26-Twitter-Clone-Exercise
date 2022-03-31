@@ -1,0 +1,44 @@
+{% macro gen_cards(user, follow_types) %} {% for follow_type in
+user.follow_types %}
+
+<div class="col-lg-4 col-md-6 col-12">
+	<div class="card user-card">
+		<div class="card-inner">
+			<div class="image-wrapper">
+				<img
+					src="{{ follow_type.header_image_url }}"
+					alt=""
+					class="card-hero"
+				/>
+			</div>
+			<div class="card-contents">
+				<a href="/users/{{ follow_type.id }}" class="card-link">
+					<img
+						src="{{ follow_type.image_url }}"
+						alt="Image for {{ follow_type.username }}"
+						class="card-image"
+					/>
+					<p>@{{ follow_type.username }}</p>
+				</a>
+
+				{% if g.user.is_following(follow_type) %}
+				<form
+					method="POST"
+					action="/users/stop-following/{{ follow_type.id }}"
+				>
+					<button class="btn btn-primary btn-sm">Unfollow</button>
+				</form>
+				{% else %}
+				<form method="POST" action="/users/follow/{{ follow_type.id }}">
+					<button class="btn btn-outline-primary btn-sm">
+						Follow
+					</button>
+				</form>
+				{% endif %}
+			</div>
+			<p class="card-bio">{{ follow_type.bio }}</p>
+		</div>
+	</div>
+</div>
+
+{% endfor %} {% endmacro %}
