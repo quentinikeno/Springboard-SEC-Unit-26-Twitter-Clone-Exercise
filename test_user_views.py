@@ -71,6 +71,17 @@ class UserViewTestCase(TestCase):
         db.session.rollback()
         
     def test_view_following(self):
+        """When you’re logged in, can you see the following pages for any user?"""
+        with self.client as c:            
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.test_user.id
+        
+            resp = c.get(f"/users/{self.test_user_id_2}/following")
+            html = resp.get_data(as_text=True)
+            
+            self.assertEqual(resp.status_code, 200)
+            
+    def test_view_follower(self):
         """When you’re logged in, can you see the follower pages for any user?"""
         with self.client as c:            
             with c.session_transaction() as sess:
