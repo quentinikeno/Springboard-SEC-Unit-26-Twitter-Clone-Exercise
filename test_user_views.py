@@ -107,3 +107,12 @@ class UserViewTestCase(TestCase):
             
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<h1>What's Happening?</h1>", html)
+            
+    def test_user_profile(self):
+        """Can you see a user's profile page?"""
+        with self.client as c:
+            resp = c.get(f"/users/{self.test_user_id}")
+            html = resp.get_data(as_text=True)
+            
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(f'<h4 id="sidebar-username">@{self.test_user.username}</h4>', html)
