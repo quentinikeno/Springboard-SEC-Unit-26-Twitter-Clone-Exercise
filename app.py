@@ -387,7 +387,7 @@ def homepage():
 @app.errorhandler(404)
 def not_found(e):
     """404 not found page."""
-    return render_template("users/404.html")
+    return render_template("users/404.html"), 404
 
 ##############################################################################
 # Turn off all caching in Flask
